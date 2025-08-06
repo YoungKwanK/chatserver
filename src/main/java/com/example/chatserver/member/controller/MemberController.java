@@ -1,5 +1,6 @@
 package com.example.chatserver.member.controller;
 
+import com.example.chatserver.chat.service.ChatService;
 import com.example.chatserver.common.auth.JwtTokenProvider;
 import com.example.chatserver.member.domain.Member;
 import com.example.chatserver.member.dto.MemberListResDto;
@@ -8,7 +9,6 @@ import com.example.chatserver.member.dto.MemberSaveReqDto;
 import com.example.chatserver.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -21,11 +21,13 @@ public class MemberController {
 
     private final MemberService memberService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ChatService chatService;
 
 
-    public MemberController(MemberService memberService, JwtTokenProvider jwtTokenProvider) {
+    public MemberController(MemberService memberService, JwtTokenProvider jwtTokenProvider, ChatService chatService) {
         this.memberService = memberService;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.chatService = chatService;
     }
 
     @PostMapping("/create")

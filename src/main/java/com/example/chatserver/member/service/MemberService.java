@@ -1,5 +1,7 @@
 package com.example.chatserver.member.service;
 
+import com.example.chatserver.chat.domain.ChatMessage;
+import com.example.chatserver.chat.domain.ChatRoom;
 import com.example.chatserver.member.domain.Member;
 import com.example.chatserver.member.dto.MemberLoginReqDto;
 import com.example.chatserver.member.dto.MemberSaveReqDto;
