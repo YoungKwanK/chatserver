@@ -10,6 +10,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Component;
 
 import javax.naming.AuthenticationException;
@@ -55,7 +56,7 @@ public class StompHandler implements ChannelInterceptor {
             String email = claims.getSubject();
             String roomId = accessor.getDestination().split("/")[2];
             if(!chatService.isRoomParticipant(email, Long.parseLong(roomId))){
-                throw new AuthenticationException("해당 room에 권한이 없습니다.");
+                throw new AuthenticationServiceException("해당 room에 권한이 없습니다.");
             }
         }
         return message;
