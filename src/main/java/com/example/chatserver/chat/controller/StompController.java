@@ -2,20 +2,22 @@ package com.example.chatserver.chat.controller;
 
 import com.example.chatserver.chat.dto.ChatMessageDto;
 import com.example.chatserver.chat.service.ChatService;
+import com.example.chatserver.chat.service.RedisPubSubService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class StompController {
 
-    private final SimpMessageSendingOperations messageTemplate;
     private final ChatService chatService;
+    private final RedisPubSubService redisPubSubService;
 
-    public StompController(SimpMessageSendingOperations messageTemplate, ChatService chatService) {
-        this.messageTemplate = messageTemplate;
+    public StompController(ChatService chatService, RedisPubSubService redisPubSubService) {
         this.chatService = chatService;
+        this.redisPubSubService = redisPubSubService;
     }
 
 ////    방법1. MessageMapping(수신)과 SendTo(topic에 메시지전달) 한꺼번에 처리
@@ -29,9 +31,13 @@ public class StompController {
 
 //    방법2. MessageMapping어노테이션만 활용.
     @MessageMapping("/{roomId}")
-    public void sendMessage(@DestinationVariable Long roomId, ChatMessageDto chatMessageDto){
-        System.out.println(chatMessageDto);
-        chatService.saveMessage(roomId, chatMessageDto);
-        messageTemplate.convertAndSend("/topic/"+roomId, chatMessageDto);
+    public void sendMessage(@DestinationVariable Long roomId, ChatMessageDto chatMessageReqDto) throws JsonProcessingException {
+        System.out.println(chatMessageReqDto);
+        chatService.saveMessage(roomId, chatMessageReqDto);
+        chatMessageReqDto.setRoomId(roomId);
+//        messageTemplate.convertAndSend("/topic/"+roomId, chatMessageDto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String message = objectMapper.writeValueAsString(chatMessageReqDto);
+        redisPubSubService.publish("chat", message);
     }
 }
